@@ -3,3 +3,5 @@ description = Hides the subject line in articles
 package = My Modules
 core = 7.x
 files[] = hide_subject.module
+files[] = hide_subject.test
+dependencies[] = simpletest

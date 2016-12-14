@@ -1,6 +1,16 @@
 <?php
+
 function hide_subject_form_alter(&$form, &$form_state, $form_id) {
+
+
     if($form_id == 'comment_node_article_form'){
-        $form['subject']['#access'] = 0;
-      }
-  }
+        $form['subject']['#access'] = 1;
+        // $form['comment_count'] ;
+        // print "<pre>";
+        // print_r($form_id);
+        // print "</pre>";
+        // exit;
+
+    }
+
+ }

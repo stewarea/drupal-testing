@@ -1,0 +1,5 @@
+name = My Module
+description = Ajax
+package = Custom Modules
+core = 7.x
+files[] = mymodule.module

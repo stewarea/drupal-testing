@@ -1,0 +1,137 @@
+<?php
+
+
+
+//menu*********************************************
+  function shift_cipher_menu() {
+
+    $items = array();
+    $items['shift'] = array(
+      'title' => 'Shift Cipher',
+      'page callback' => 'drupal_get_form',
+      'access callback' => TRUE,
+      'page arguments' => array('shift_cipher_form'),
+      'type' => MENU_NORMAL_ITEM,
+    );
+    $items['shift_cipher_success'] = array(
+      'title' => 'Message successfully encrypted.',
+      'page callback' => 'shift_cipher_success_page',
+      'access callback' => TRUE,
+      'type' => MENU_CALLBACK,
+    );
+
+    return $items;
+
+  }
+
+
+
+//form********************************************
+  function shift_cipher_form() {
+
+    $form = array();
+    $form['number'] = array(
+      '#title' => 'Value',
+      '#type' => 'textfield',
+      '#element_validate' => array('element_validate_integer_positive'),
+      '#description' => 'Enter in a value',
+      '#required' => TRUE,
+    );
+    $form['direction'] = array(
+      '#title' => 'Direction',
+      '#type' => 'textfield',
+      '#element_validate' => array('element_validate_direction'),
+      '#description' => 'Enter either right or left',
+      '#required' => TRUE,
+    );
+    $form['phrase'] = array(
+      '#title' => 'Phrase',
+      '#type' => 'textfield',
+      '#description' => 'Enter a message to encrypt',
+      '#element_validate' => array('element_validate_text'),
+      '#required' => TRUE,
+    );
+    $form['submit'] = array(
+      '#attributes' => array('class' => array('bigButton')),
+      '#value' => 'Encrypt',
+      '#type' => 'image_button',
+      '#src' => 'http://i2.kym-cdn.com/photos/images/original/000/913/847/3ea.gif',
+
+    );
+    return $form;
+
+  }
+
+
+
+
+// Validations ****************************************
+
+  function element_validate_direction($element) {
+    $direction = $element['#value'];
+    $direction_case = strtolower($direction);
+    $valid_directions = array('right', 'left', 'r', 'l');
+
+    if(!in_array($direction_case, $valid_directions)) {
+      form_error($element, t('Enter a direction, please.'));
+    }
+  }
+
+  function element_validate_text($element) {
+    $ok = array(' ', '.', '?', ',', '!');
+    $new_ok = array('', '', '', '', '');
+    $string = $element['#value'];
+    if(ctype_alpha(str_replace($ok, $new_ok, $string) ) === false) {
+      form_error($element, t('Please only enter letters'));
+    }
+  }
+
+  function shift_cipher_form_submit($form, &$form_state) {
+      echo '<pre>';
+      print_r($form);
+      echo '</pre>';
+      exit;
+    $_SESSION['number'] = $form_state['values']['number'];
+    $_SESSION['direction'] = strtolower($form_state['values']['direction']);
+    $_SESSION['phrase'] = strtolower($form_state['values']['phrase']);
+
+
+    $form_state['redirect'] = 'shift_cipher_success';
+  }
+
+
+
+//redirect and logic**********************************************
+  function shift_cipher_success_page() {
+
+    $direction = $_SESSION['direction'];
+    $number = $_SESSION['number'];
+    $phrase = $_SESSION['phrase'] ;
+
+    $alphabet = range('a', 'z');
+
+    $flip = array_flip($alphabet);
+
+    $encrypted_text = '';
+
+
+    for($i=0; $i < strlen($phrase); $i++){
+
+      if($phrase[$i] == " " ){
+        $encrypted_text .= '&nbsp';
+
+      } elseif(ctype_alpha($phrase[$i]) === false) {
+        $encrypted_text .= $phrase[$i];
+
+      } elseif($direction == 'right' || $direction == 'r') {
+        $encrypted_text .= $alphabet[($flip[$phrase[$i]] + $number)%26];
+
+      } elseif($direction == 'left' || $direction == 'l'){
+
+        $encrypted_text .= $alphabet[(26 + $flip[$phrase[$i]] - $number)%26];
+      }
+
+    }
+
+    return $encrypted_text;
+  }

@@ -1,0 +1,6 @@
+name = ajax_link
+description = tell time
+package = Custom Modules
+core = 7.x
+scripts[] = ajax_link.js
+files[] = ajax_link.module
