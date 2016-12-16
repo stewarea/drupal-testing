@@ -3,4 +3,6 @@ description = Encrypt messages
 package = Custom Modules
 core = 7.x
 files[] = shift_cipher.module
+files[] = shift_cipher.test
 styles[all][] = myStyles.css
+dependancies[] = simpletest

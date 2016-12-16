@@ -19,12 +19,9 @@
         public function createTestingPage() {
         //$info = the information needed to create the basic page at the url `pagetest`.
         $info = array();
-        $info['title'] = "Cipher";
-        // $info["body[und][0][value]"] = "1, 2, 3!";
-        $info['#edit-number']['value'] = 1;
-        $info['#edit-direction']['value'] = 'right';
-        $info['#edit-phrase']['value'] = 'ok';
-        $info['#edit-submit']['value'] = 1;
+        $info['title'] = "Subject Test";
+        $info["body[und][0][value]"] = "1, 2, 3!";
+
         //save the new page
         $this->drupalPost('node/add/article', $info, t('Save'));
 
@@ -43,6 +40,6 @@
 
         public function testSimpleTestExampleCreate() {
             $this->drupalGet('pagetest');
-            $this->assertFieldById('edit-subject', '', 'hells yes');
+            $this->assertNoFieldById('edit-subject', '', 'hells yes');
         }
 }

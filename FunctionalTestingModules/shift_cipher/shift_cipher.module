@@ -1,0 +1,114 @@
+<?php
+
+//create main menu item
+function shift_cipher_menu() {
+    $items['cipher'] = array(
+        'title' => 'Shift Cipher Encryption',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('shift_cipher_form'),
+        'access callback' => TRUE,
+        'type' => MENU_NORMAL_ITEM,
+    );
+    $items['cipher_output'] = array(
+        'title' => 'Cipher Results',
+        'page callback' => 'shift_cipher_output',
+        'access callback' => TRUE,
+        'type' => MENU_CALLBACK,
+    );
+    return $items;
+}
+
+//create cipher input form
+function shift_cipher_form() {
+    $form['magnitude'] = array(
+        '#title' => 'Shift Magnitude',
+        '#type' => 'textfield',
+        '#description' => t('Enter the number of letters to shift by'),
+        '#element_validate' => array(
+            'element_validate_integer_positive',
+            'element_validate_within_25'),
+        );
+    $form['direction'] = array(
+        '#title' => 'Shift Direction',
+        '#type' => 'radios',
+        '#default_value' => 'right',
+        '#options' => array(
+            'left' => t('left'),
+            'right' => t('right'),
+        ),
+    );
+    $form['phrase'] = array(
+        '#title' => 'Input Phrase',
+        '#type' => 'textfield',
+        '#description' => t('Enter the phrase to encrypt'),
+        '#element_validate' => array('element_validate_no_special_characters'),
+    );
+    $form['submit'] = array(
+        '#type' => 'submit',
+        '#value' => 'Encrypt',
+    );
+    return $form;
+}
+
+//validation that makes sure magnitude is within 1 to 25
+//shift of 26 would result in unencrypted phrase
+function element_validate_within_25($element) {
+    if($element['#value'] > 25 || $element['#value'] < 1) {
+        form_error($element, t('Shift magnitude must be between 1 and 25'));
+    }
+}
+
+//validation that excludes special characters from input phrase
+//accepted characters are: . , ! ? [space] a-z A-Z
+function element_validate_no_special_characters($element) {
+    if(preg_match('/[^a-zA-z.,!? ]+/', $element['#value'])) {
+        form_error($element, t('Phrase may only contain characters a-z A-Z . , ! ? [space]'));
+    }
+}
+
+function shift_cipher_form_submit($form, &$form_state) {
+    $magnitude = $form_state['values']['magnitude'];
+    $direction = $form_state['values']['direction'];
+    $input_phrase = $form_state['values']['phrase'];
+    $_SESSION['input_phrase'] = $input_phrase;
+
+    //changes negative magnitude to equivalent shift in positive number
+    if($direction == 'left') {
+        $magnitude = 26 - $magnitude;
+    }
+
+    //splits input phrase string into array of characters
+    //makes all characters lowercase
+    $phrase = str_split(strtolower($input_phrase));
+
+    //array of the alphabet
+    $alphabet = range('a', 'z');
+
+    //initial empty string for output
+    $output_phrase = '';
+
+    //loop through each letter in user's input phrase
+    foreach($phrase as $element) {
+        //check that it is a letter, ignores punctuation and spaces etc
+        if(in_array($element, $alphabet)) {
+            //find index of letter
+            $index_of_letter = array_search($element, $alphabet);
+            //calculate index of encrypted letter
+            $encrypted_letter_index = ($index_of_letter + $magnitude) % 26;
+            //push encrypted letter to output string
+            $output_phrase .= $alphabet[$encrypted_letter_index];
+        }
+        else {
+            //push non-letter characters to output string unchanged
+            $output_phrase .= $element;
+        }
+    }
+
+    $_SESSION['encrypted_phrase'] = $output_phrase;
+    $form_state['redirect'] = 'cipher_output';
+}
+
+function shift_cipher_output() {
+    return '<p>Input phrase: ' . $_SESSION['input_phrase'] . '</p>' .
+        '<p>Encrypted phrase: ' . $_SESSION['encrypted_phrase'] . '</p>';
+}

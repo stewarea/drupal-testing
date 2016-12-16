@@ -1,0 +1,7 @@
+name = No Comments Subject
+description = Hide subject in article comment submission form.
+package = Epicodus Examples
+core = 7.x
+files[] = no_comments_subject.module
+files[] = no_comments_subject.test
+dependencies[] = simpletest

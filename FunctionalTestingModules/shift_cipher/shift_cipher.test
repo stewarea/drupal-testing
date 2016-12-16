@@ -1,0 +1,62 @@
+<?php
+/**
+ * @file
+ * Tests for the NoCommentsSubject Module.
+ */
+class ShiftCipherTests extends DrupalWebTestCase {
+
+    public static function getInfo() {
+        return array(
+            'name' => 'Cipher Test',
+            'description' => 'Tests for the Shift Cipher Module.',
+            'group' => 'Epicodus Examples Tests',
+        );
+    }
+
+    public function setUp() {
+        // enable the module.
+        parent::setUp(array('shift_cipher'));
+    }
+
+    public function testCipherValid() {
+        // We want to navigate to the cipher form, add some good values, submit it and make sure the output is displayed.
+
+        // Navigate to /cipher.
+        $this->drupalGet('cipher');
+
+        // Verify that the form exists.
+        $this->assertText("Shift Cipher Encryption", 'Form displayed!');
+
+        // Fill out form and post.
+        $form = array();
+        $form['magnitude'] = 1;
+        $form['direction'] = 'right';
+        $form['phrase'] = 'a';
+        $this->drupalPost('cipher', $form, t('Encrypt'));
+
+        $this->assertText("Encrypted phrase: b", 'Output displayed!');
+        // Other valid test cases here, though these might be better suited to unit tests. 
+        // This is more for testing the flow between pages when we display the form and submit it.
+    }
+
+    public function testCipherInvalid() {
+        // We want to navigate to the cipher form, add some invalid values, submit it and make sure the errors are displayed.
+
+        // Navigate to /cipher.
+        $this->drupalGet('cipher');
+
+        // Verify that the form exists.
+        $this->assertText("Shift Cipher Encryption", 'Form displayed!');
+
+        // Fill out form and post.
+        $form = array();
+        $form['magnitude'] = -1; // use a negative number!
+        $form['direction'] = 'right'; // other fields correct.
+        $form['phrase'] = 'a';
+        $this->drupalPost('cipher', $form, t('Encrypt'));
+
+        $this->assertText("Shift Magnitude must be a positive integer.", 'Error displayed!');
+        // Other invalid test cases here.
+    }
+
+}

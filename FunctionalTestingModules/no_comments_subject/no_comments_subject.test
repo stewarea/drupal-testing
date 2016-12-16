@@ -1,0 +1,72 @@
+<?php
+/**
+ * @file
+ * Tests for the NoCommentsSubject Module.
+ */
+class NoCommentsSubjectTests extends DrupalWebTestCase {
+
+    public static function getInfo() {
+        return array(
+            'name' => 'No Comments Subject Tests',
+            'description' => 'Tests for the No Comments Subject module.',
+            'group' => 'Epicodus Examples Tests',
+        );
+    }
+
+    public function setUp() {
+        parent::setUp(array('no_comments_subject'));
+
+        $user = $this->drupalCreateAdminUser();
+        $this->drupalLogin($user);
+
+        //create node here: article to add comments to.
+        //to create that content, we need to have a signed in user with permission to create content.
+        //$info = the information needed to create the article. Only need title and body because comments are enabled by default on an article.
+        $info = array();
+        $info['title'] = "This is an article.";
+        $info["body[und][0][value]"] = "Some news goes here!";
+
+        //found the URL to post the form to by manually clicking to the Add Content menu and clicking on Page.
+        $this->drupalPost('node/add/article', $info, t('Save'));
+
+        //set new page to the correct path. We know this will be node/1 because we are starting from scratch.
+        $path['source'] = 'node/1';
+        $path['alias'] = 'new-article';
+        path_save($path);
+    }
+
+    public function drupalCreateAdminUser(array $permissions = array()) {
+        $roles = user_roles();
+        $index = array_search('administrator', $roles);
+        $user = $this->drupalCreateUser($permissions);
+        $user->roles[$index] = 'administrator';
+        return user_save($user);
+    }
+
+
+    public function testWelcomeNewUser() {
+        // We want to navigate to the welcome_new_user page on user login. So before we check if the login hook works, make sure the page is there in this first test.
+
+        // Navigate to /new-article path alias.
+        $this->drupalGet('new-article');
+        // Verify that the article exists.
+        $this->assertText("This is an article.", 'The article was created!');
+    }
+
+    public function drupalCreateAuthenticatedUser($permissions = array()) {
+        $roles = user_roles();
+        $index = array_search('authenticated', $roles);
+        $user = $this->drupalCreateUser($permissions);
+        $user->roles[$index] = 'authenticated';
+        return user_save($user);
+    }
+
+    public function testNoSubjectField() {
+        $user = $this->drupalCreateAuthenticatedUser();
+        $this->drupalLogin($user);
+        // navigate to our new article
+        $this->drupalGet('new-article');
+        // verify that the comment form has no subject field.
+        $this->assertNoText('Subject', 'The subject field is correctly hidden.');
+    }
+}

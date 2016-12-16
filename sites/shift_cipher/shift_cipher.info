@@ -1,0 +1,7 @@
+name = Shift Cipher
+description = Encrypts user input by shifting letters in the vector given by the user (vector = direction + magnitude). Thanks to Kyle Bulloch.
+package = Epicodus Examples
+core = 7.x
+files[] = shift_cipher.module
+files[] = shift_cipher.test
+dependencies[] = simpletest
